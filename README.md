@@ -5,7 +5,7 @@ An ansible playbook to install and configure a homelab using docker conatiners o
 ## Services included
 * [Nextcloud](https://nextcloud.com) - Cloud storage and more
 * [Bitwarden_rs](https://github.com/dani-garcia/bitwarden_rs) - Password manager. A community made server implementation of [Bitwarden](https://bitwarden.com)
-* [Heimdall]https://github.com/linuxserver/Heimdall) - Application dashboard
+* [Heimdall](https://github.com/linuxserver/Heimdall) - Application dashboard
 * [Traefik](https://traefik.io) - Reverse proxy, HTTPS certificate management, and more 
 
 ## What you need
@@ -65,4 +65,4 @@ I believe it should be easily adaptable to fit your own homelab automation.
 
 ### Why ansible? 
 Ansible enables rapid redeployment of services in the event of hardware or software failure. 
-Since Ansible is state-based, it can also be used to fix configs that were inadvertantly edited. Its also fun to write!# homelab-ansible
+Since Ansible is state-based, it can also be used to fix configs that were inadvertantly edited. Its also fun to write!
