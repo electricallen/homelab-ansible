@@ -1,0 +1,101 @@
+# Ansible Playbook for dockerized deployment of a NextCloud server
+---
+- name: deploy and configure nextcloud
+  hosts: all
+  vars_files: ../defaults/main.yml
+
+  tasks:
+  - name: install docker and dependencies on newer versions (Ubuntu 20.04+)
+    include: install2004.yml
+    when: ansible_distribution_version is version('20.04', '>=')
+
+  - name: install docker and dependencies on older versions (Prior to Ubuntu 20.04)
+    include: install1804.yml
+    when: ansible_distribution_version is version('20.04', '<')
+  
+  - name: allow traffic on ports {{ httpport }} and {{ httpsport }}
+    ufw:
+     rule: allow
+     port: "{{ item }}"
+    loop:
+      - "{{ httpport | string }}"
+      - "{{ httpsport | string }}"
+    become: yes
+
+  - name: ensure group "docker" exists
+    group:
+      name: docker
+      state: present
+    become: yes
+
+  - name: add {{ username }} to docker group
+    user:
+      name: "{{ username }}"
+      groups: docker
+      append: yes
+    become: yes
+    register: docker_group
+    
+  - name: reset ssh connection to allow group changes to affect {{ username }}
+    meta: reset_connection
+
+  - name: enable docker service
+    service:
+      name: docker
+      state: started
+      enabled: yes
+    become: yes
+      
+  - name: create project directories
+    file:
+      path: ~/{{ item }}/
+      state: directory
+      owner: "{{ username }}"
+      group: docker
+      mode: '0770'
+    loop:
+      - nextcloud
+      - traefik
+
+  - name: set salted hash for traefik dashboard password
+    set_fact:
+      traefik_creds: "{{ traefikuser }}:{{ traefikpw | password_hash('md5', 65534 | random(seed=inventory_hostname | string)) | regex_replace('\\$', '$$') }}"
+    when: traefikuser != ""
+    
+  - name: create docker-compose files
+    template:
+      src: ../templates/{{ item }}/docker-compose.yml
+      dest: ~/{{ item }}/docker-compose.yml
+      owner: "{{ username }}"
+      group: docker
+      mode: '0770'
+    loop:
+      - nextcloud
+      - traefik
+
+  - name: start containers (may take a long time)
+    docker_compose: 
+      project_src: ~/{{ item }}/
+    loop:
+      - traefik
+      - nextcloud
+
+  - name: Waiting for nextcloud setup (5 min max)...
+    wait_for:
+      path: ~/nextcloud/nextcloud/config/config.php
+
+  - name: set apache to force http redirect (fixes some client connections behind proxies)
+    lineinfile:
+      path: /home/{{ username }}/nextcloud/nextcloud/config/config.php
+      regexp: "^  'overwriteprotocol'"
+      line: "  'overwriteprotocol' => 'https',"
+      insertbefore: "  'htaccess.RewriteBase'"
+    become: yes
+    register: https_redirection
+
+  - name: restart nextcloud
+    docker_compose:
+      project_src: ~/nextcloud
+      build: yes
+      restarted: yes
+    when: https_redirection.changed
