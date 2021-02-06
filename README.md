@@ -66,5 +66,3 @@ I believe it should be easily adaptable to fit your own homelab automation.
 ### Why ansible? 
 Ansible enables rapid redeployment of services in the event of hardware or software failure. 
 Since Ansible is state-based, it can also be used to fix configs that were inadvertantly edited. Its also fun to write!
-
-### 
