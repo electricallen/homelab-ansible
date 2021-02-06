@@ -15,17 +15,25 @@ username: targetuser
 #            ansible_become_pass: "{{ targetpw }}"
 # and run the playbook using 
 #            ansible-playbook main.yml -i hosts.yml --ask-become-pass
-targetpw: password
+target_pw: password
 
 # Domain services will be avaliable on
 domain: example.xyz
+
+############################### SERVICES SELECTION ############################
+
+# Disable a service by commenting it out from this list
+services:
+- nextcloud
+- bitwarden
+- heimdall
 
 ############################### TRAEFIK SETTINGS ##############################
 
 # Hostname for traefik dashboard URL
 # Traefik dashboard will be avaliable at: 
-#     https://{{ traefikhost}}.{{ domain }}
-traefikhost: traefik
+#     https://{{ traefik_host}}.{{ domain }}
+traefik_host: traefik
 
 # External ports for traefik container
 # Change these ports if trafic will reach vm on a different port
@@ -37,20 +45,36 @@ email: yourname@example.com
 
 # Traefik dashboard credentials
 # Leave blank (double quotes) if you dont want a dashboard
-traefikuser: admin
-#traefikuser: ""
+traefik_user: admin
+#traefik_user: ""
+
 # Password is plaintext (ansible will hash)
-traefikpw: admin
+traefik_pw: admin
 
 ######################### NEXTCLOUD/DATABASE SETTINGS #########################
 
 # Hostname for NextCloud Web URL
 # Nextcloud will be avaliable in browser and through apps at: 
-#     https://{{ nextcloudhost}}.{{ domain }}
-nextcloudhost: cloud
+#     https://{{ nextcloud_host}}.{{ domain }}
+nextcloud_host: cloud
 
 # MySQL database credentials
 # Passwords are plaintext
-mysqlrootpw: admin
-mysqlusr: nextcloud
-mysqlpw: admin
+mysql_rootpw: admin
+mysql_usr: nextcloud
+mysql_pw: admin
+
+######################### BITWARDEN SETTINGS ##################################
+# Hostname for Bitwarden Web URL
+# Bitwarden will be avaliable in browser and through apps at: 
+#     https://{{ bitwarden_host}}.{{ domain }}
+bitwarden_host: bitwarden
+
+# Token for getting into admin area of bitwarden at {{ bitwardenhost }}.{{ domain }}/admin
+# Some characters are know to cause issues - "openssl rand -base64 48" reccommended
+bitwarden_admin_token: long_complicated_string_here
+
+######################### INTERNAL SETTINGS ##################################
+# !!!!!!!!! Don't change these variables !!!!!!!!!
+containers: "{{ [ 'traefik' ] + services }}"
+traefik_creds: "{{ traefik_user }}:{{ traefik_pw | password_hash('md5', 65534 | random(seed=inventory_hostname | string)) | regex_replace('\\$', '$$') }}"

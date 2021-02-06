@@ -10,10 +10,10 @@ services:
     volumes:
       - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD={{ mysqlrootpw }}
-      - MYSQL_PASSWORD={{ mysqlpw }}
+      - MYSQL_ROOT_PASSWORD={{ mysql_rootpw }}
+      - MYSQL_PASSWORD={{ mysql_pw }}
       - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER={{ mysqlusr }}
+      - MYSQL_USER={{ mysql_usr }}
     networks:
       - nextcloud-internal
 
@@ -43,7 +43,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=nextcloud-external
-      - traefik.http.routers.nextcloud.rule=Host(`{{ nextcloudhost }}.{{ domain }}`)
+      - traefik.http.routers.nextcloud.rule=Host(`{{ nextcloud_host }}.{{ domain }}`)
       - traefik.http.routers.nextcloud.entrypoints=websecure
       - traefik.http.routers.nextcloud.tls.certresolver=letsencrypt
       - traefik.http.routers.nextcloud.middlewares=nextcloud,nextcloud_redirect
@@ -54,12 +54,12 @@ services:
       - traefik.http.middlewares.nextcloud_redirect.redirectregex.regex=/.well-known/(card|cal)dav
       - traefik.http.middlewares.nextcloud_redirect.redirectregex.replacement=/remote.php/dav/
     environment:
-      - MYSQL_PASSWORD={{ mysqlpw }}
+      - MYSQL_PASSWORD={{ mysql_pw }}
       - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER={{ mysqlusr }}
+      - MYSQL_USER={{ mysql_usr }}
       - MYSQL_HOST=nextcloud-db
       - REDIS_HOST=nextcloud-redis
-      - NEXTCLOUD_TRUSTED_DOMAINS={{ nextcloudhost }}.{{ domain }}
+      - NEXTCLOUD_TRUSTED_DOMAINS={{ nextcloud_host }}.{{ domain }}
       - TRUSTED_PROXIES=172.18.0.0/16
     networks:
       - nextcloud-external

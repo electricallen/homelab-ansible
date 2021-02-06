@@ -30,7 +30,7 @@ services:
       - traefik.http.routers.traefik.tls.certresolver=letsencrypt
 {% if traefikuser != "" %}
       # Dashboard
-      - traefik.http.routers.dashboard.rule=Host(`{{ traefikhost}}.{{ domain }}`)
+      - traefik.http.routers.dashboard.rule=Host(`{{ traefik_host}}.{{ domain }}`)
       - traefik.http.routers.dashboard.service=api@internal
       - traefik.http.routers.dashboard.entrypoints=websecure
       - traefik.http.routers.dashboard.tls.certresolver=letsencrypt
@@ -43,8 +43,13 @@ services:
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
     networks:
-      - nextcloud
+{% for service in services %}
+      - {{ service }}
+{% endfor %}
 
 networks:
-  nextcloud:
-    name: nextcloud-external
+{% for service in services %}
+  {{ service }}:
+    name: {{ service }}-external
+      - {{ service }}
+{% endfor %}

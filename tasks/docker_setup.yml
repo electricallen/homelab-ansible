@@ -1,0 +1,56 @@
+  - name: allow traffic on ports {{ httpport }} and {{ httpsport }}
+    ufw:
+     rule: allow
+     port: "{{ item }}"
+    loop:
+      - "{{ httpport | string }}"
+      - "{{ httpsport | string }}"
+    become: yes
+
+  - name: ensure group "docker" exists
+    group:
+      name: docker
+      state: present
+    become: yes
+
+  - name: add {{ username }} to docker group
+    user:
+      name: "{{ username }}"
+      groups: docker
+      append: yes
+    become: yes
+    register: docker_group
+    
+  - name: reset ssh connection to allow group changes to affect {{ username }}
+    meta: reset_connection
+    when: docker_group.changed
+
+  - name: enable docker service
+    service:
+      name: docker
+      state: started
+      enabled: yes
+    become: yes
+
+  - name: create project directories
+    file:
+      path: ~/{{ item }}/
+      state: directory
+      owner: "{{ username }}"
+      group: docker
+      mode: '0770'
+    loop: "{{ containers }}"
+
+  - name: create docker-compose files
+    template:
+      src: templates/{{ item }}-docker-compose.yml
+      dest: ~/{{ item }}/docker-compose.yml
+      owner: "{{ username }}"
+      group: docker
+      mode: '0770'
+    loop: "{{ containers }}"
+
+  - name: start containers (may take a long time)
+    docker_compose: 
+      project_src: ~/{{ item }}/
+    loop: "{{ containers }}"

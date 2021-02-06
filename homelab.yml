@@ -1,0 +1,22 @@
+ # Ansible Playbook for dockerized deployment of a homelab services
+---
+- name: deploy and configure homelab containers
+  hosts: all
+  vars_files: defaults/main.yml
+
+  tasks:
+  - name: install docker and dependencies on newer versions (Ubuntu 20.04+)
+    include: tasks/install2004.yml
+    when: ansible_distribution_version is version('20.04', '>=')
+
+  - name: install docker and dependencies on older versions (Prior to Ubuntu 20.04)
+    include: tasks/install1804.yml
+    when: ansible_distribution_version is version('20.04', '<')
+
+  - name: configure host for docker and deploy containers
+    include: tasks/docker_setup.yml
+
+  - name: perform post-installation tasks for services that need it 
+    include: "{{ item }}"
+    with_fileglob:
+      - "./tasks/post_install/*"
