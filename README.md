@@ -20,12 +20,12 @@ An ansible playbook to install and configure a homelab using docker conatiners o
 2. Install Ubuntu 20.04 and OpenSSH on target node (18.04 is also tested and supported - newer/older versions may or may not work)
 3. Set up port forwarding/routing
 
-    * Router
+   Router
         
     - Port forward http and https to the target node (typically :80 and :443)
     - Set up split dns override to route the hostnames of all of your services to the docker host
 
-    * Domain registrar
+   Domain registrar
 
     - Set up routing for your domain. I used an A+ record with wildcard (*) for hostname
 
@@ -46,7 +46,7 @@ An ansible playbook to install and configure a homelab using docker conatiners o
     ```
 7. Run the ansible playbook from this directory with:
         ```
-        ansible-playbook tasks/main.yml -i hosts.yml
+        ansible-playbook homelab.yml -i hosts.yml
         ```
 8. Once the playbook is done, check to see if your routing works by typing traefik.yourdomain.xyz into a browser
 9. It may take a few minutes for traefik to install an HTTPS cert from Let's Encrypt
