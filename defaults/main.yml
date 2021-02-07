@@ -65,6 +65,7 @@ mysql_usr: nextcloud
 mysql_pw: admin
 
 ######################### BITWARDEN SETTINGS ##################################
+
 # Hostname for Bitwarden Web URL
 # Bitwarden will be avaliable in browser and through apps at: 
 #     https://{{ bitwarden_host}}.{{ domain }}
@@ -73,6 +74,17 @@ bitwarden_host: bitwarden
 # Token for getting into admin area of bitwarden at {{ bitwardenhost }}.{{ domain }}/admin
 # Some characters are know to cause issues - "openssl rand -base64 48" reccommended
 bitwarden_admin_token: long_complicated_string_here
+
+######################### HEIMDALL SETTINGS ##################################
+
+# Hostname for Heimdall Web URL
+# Bitwarden will be avaliable in browser and through apps at: 
+#     https://{{ heimdall_host}}.{{ domain }}
+heimdall_host: www
+
+# Timezone for Heimdall container
+# see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for formatting
+heimdall_timezone: America/Denver
 
 ######################### INTERNAL SETTINGS ##################################
 # !!!!!!!!! Don't change these variables !!!!!!!!!

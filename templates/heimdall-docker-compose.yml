@@ -1,0 +1,31 @@
+version: "3.5"
+
+services:
+  heimdall:
+    image: linuxserver/heimdall
+    container_name: heimdall
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ={{ heimdall_timezone }}
+    volumes:
+      - ./config:/config
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=heimdall-external
+      - traefik.http.routers.heimdall.rule=Host(`{{ heimdall_host }}.{{ domain }}`)
+      - traefik.http.routers.heimdall.entrypoints=websecure
+      - traefik.http.routers.heimdall.tls.certresolver=letsencrypt
+      - traefik.http.routers.heimdall.middlewares=heimdall
+      - traefik.http.middlewares.heimdall.headers.contentSecurityPolicy=frame-ancestors 'self' {{ domain }} *.{{ domain }}
+      - traefik.http.middlewares.heimdall.headers.stsSeconds=155520011
+      - traefik.http.middlewares.heimdall.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.heimdall.headers.stsPreload=true
+    networks:
+      - heimdall-external
+
+networks:
+  heimdall-external:
+    external: 
+      name: heimdall-external

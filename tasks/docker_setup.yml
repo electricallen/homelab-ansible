@@ -23,7 +23,8 @@
     
   - name: reset ssh connection to allow group changes to affect {{ username }}
     meta: reset_connection
-    when: docker_group.changed
+# not supported until Ansible 2.11
+#    when: docker_group.changed
 
   - name: enable docker service
     service:

@@ -6,7 +6,7 @@ services:
     image: traefik:latest
     container_name: traefik
     command:
-{% if traefikuser != "" %}
+{% if traefik_user != "" %}
       - --api.dashboard=true
 {% endif %}
       - --providers.docker=true
@@ -28,7 +28,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik.tls.certresolver=letsencrypt
-{% if traefikuser != "" %}
+{% if traefik_user != "" %}
       # Dashboard
       - traefik.http.routers.dashboard.rule=Host(`{{ traefik_host}}.{{ domain }}`)
       - traefik.http.routers.dashboard.service=api@internal
@@ -51,5 +51,4 @@ networks:
 {% for service in services %}
   {{ service }}:
     name: {{ service }}-external
-      - {{ service }}
 {% endfor %}
