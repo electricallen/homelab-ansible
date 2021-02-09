@@ -14,7 +14,7 @@ username: targetuser
 # If you prefer to leave this blank then comment out the following line in hosts.yml:
 #            ansible_become_pass: "{{ targetpw }}"
 # and run the playbook using 
-#            ansible-playbook main.yml -i hosts.yml --ask-become-pass
+#            ansible-playbook homelab.yml -i hosts.yml --ask-become-pass
 target_pw: password
 
 # Domain services will be avaliable on
