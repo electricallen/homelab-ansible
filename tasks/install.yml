@@ -1,0 +1,30 @@
+  - name: install docker and dependencies on newer versions (Ubuntu 20.04+)
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update-cache: yes
+    loop:
+      - docker
+      - apache2-utils
+      - docker-compose
+    become: yes
+    when: ansible_distribution_version is version('20.04', '>=')
+      
+  - name: install docker and dependencies on older versions (Prior to Ubuntu 20.04)
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update-cache: yes
+    loop: 
+      - docker.io
+      - apache2-utils
+      - python3
+      - python3-pip
+    become: yes
+    when: ansible_distribution_version is version('20.04', '<')
+
+  - name: install docker-compose on older versions (Prior to Ubuntu 20.04)
+    pip:
+      name: docker-compose
+    become: yes
+    when: ansible_distribution_version is version('20.04', '<')
