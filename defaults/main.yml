@@ -32,7 +32,7 @@ services:
 
 # Hostname for traefik dashboard URL
 # Traefik dashboard will be avaliable at: 
-#     https://{{ traefik_host}}.{{ domain }}
+#     https://{{ traefik_host }}.{{ domain }}
 traefik_host: traefik
 
 # External ports for traefik container
@@ -68,7 +68,7 @@ mysql_pw: admin
 
 # Hostname for Bitwarden Web URL
 # Bitwarden will be avaliable in browser and through apps at: 
-#     https://{{ bitwarden_host}}.{{ domain }}
+#     https://{{ bitwarden_host }}.{{ domain }}
 bitwarden_host: bitwarden
 
 # Token for getting into admin area of bitwarden at {{ bitwardenhost }}.{{ domain }}/admin
@@ -78,8 +78,8 @@ bitwarden_admin_token: long_complicated_string_here
 ######################### HEIMDALL SETTINGS ##################################
 
 # Hostname for Heimdall Web URL
-# Bitwarden will be avaliable in browser and through apps at: 
-#     https://{{ heimdall_host}}.{{ domain }}
+# Bitwarden will be avaliable in browser at: 
+#     https://{{ heimdall_host }}.{{ domain }}
 heimdall_host: www
 
 # Timezone for Heimdall container
