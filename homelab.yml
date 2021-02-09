@@ -6,12 +6,7 @@
 
   tasks:
   - name: install docker and dependencies on newer versions (Ubuntu 20.04+)
-    include: tasks/install2004.yml
-    when: ansible_distribution_version is version('20.04', '>=')
-
-  - name: install docker and dependencies on older versions (Prior to Ubuntu 20.04)
-    include: tasks/install1804.yml
-    when: ansible_distribution_version is version('20.04', '<')
+    include: tasks/install.yml
 
   - name: configure host for docker and deploy containers
     include: tasks/docker_setup.yml
