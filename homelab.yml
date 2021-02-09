@@ -5,7 +5,7 @@
   vars_files: defaults/main.yml
 
   tasks:
-  - name: install docker and dependencies on newer versions (Ubuntu 20.04+)
+  - name: install docker and dependencies
     include: tasks/install.yml
 
   - name: configure host for docker and deploy containers
