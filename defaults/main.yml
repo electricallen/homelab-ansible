@@ -36,7 +36,7 @@ services:
 traefik_host: traefik
 
 # External ports for traefik container
-# Change these ports if trafic will reach vm on a different port
+# Change these ports if traffic will reach vm on a different port
 httpport: "80"
 httpsport: "443"
 
@@ -55,7 +55,7 @@ traefik_pw: admin
 
 # Hostname for NextCloud Web URL
 # Nextcloud will be avaliable in browser and through apps at: 
-#     https://{{ nextcloud_host}}.{{ domain }}
+#     https://{{ nextcloud_host }}.{{ domain }}
 nextcloud_host: cloud
 
 # MySQL database credentials
