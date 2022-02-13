@@ -3,7 +3,7 @@ version: "3.5"
 services:
 
   bitwarden:
-    image: bitwardenrs/server
+    image: vaultwarden/server:latest
     container_name: bitwarden
     restart: always
     volumes:
