@@ -1,0 +1,4 @@
+#!/bin/bash
+docker exec nextcloud-db mysql -h localhost -u {{ mysql_usr }} -p{{ mysql_pw }} -e "DROP DATABASE nextcloud"
+docker exec nextcloud-db mysql -h localhost -u {{ mysql_usr }} -p{{ mysql_pw }} -e "CREATE DATABASE nextcloud"
+docker exec -i nextcloud-db mysql -h localhost -u {{ mysql_usr }} -p{{ mysql_pw }} nextcloud < /home/{{ username }}/nextcloud/db/nextcloud-sqlbkp.bak

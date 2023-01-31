@@ -42,6 +42,12 @@ services:
       - "traefik.http.routers.http-catchall.entrypoints=web"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https@docker"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+{% if traefik_ip_whitelist != "" %}
+      # IP Whitelisting
+      - traefik.http.middlewares.whitelist.ipwhitelist.sourcerange={{ traefik_ip_whitelist }}
+{% endif %}
+    environment:
+      TZ: {{ timezone }}
     networks:
 {% for service in services %}
       - {{ service }}

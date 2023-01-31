@@ -9,11 +9,13 @@ services:
     restart: always
     volumes:
       - db:/var/lib/mysql
+      - ./db:/backups
     environment:
       - MYSQL_ROOT_PASSWORD={{ mysql_rootpw }}
       - MYSQL_PASSWORD={{ mysql_pw }}
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER={{ mysql_usr }}
+      - TZ={{ timezone }}
     networks:
       - nextcloud-internal
 
@@ -36,6 +38,7 @@ services:
 
   nextcloud:
     container_name: nextcloud
+    hostname: {{ nextcloud_host }}.{{ domain }}
     image: nextcloud:latest
     restart: always
     volumes:
@@ -47,6 +50,9 @@ services:
       - traefik.http.routers.nextcloud.entrypoints=websecure
       - traefik.http.routers.nextcloud.tls.certresolver=letsencrypt
       - traefik.http.routers.nextcloud.middlewares=nextcloud,nextcloud_redirect
+{% if nextcloud_whitelist == "enabled" and traefik_ip_whitelist != "" %}
+      - traefik.http.routers.nextcloud.middlewares=whitelist
+{% endif %}
       - traefik.http.middlewares.nextcloud.headers.contentSecurityPolicy=frame-ancestors 'self' {{ domain }} *.{{ domain }}
       - traefik.http.middlewares.nextcloud.headers.stsSeconds=155520011
       - traefik.http.middlewares.nextcloud.headers.stsIncludeSubdomains=true
@@ -61,6 +67,7 @@ services:
       - REDIS_HOST=nextcloud-redis
       - NEXTCLOUD_TRUSTED_DOMAINS={{ nextcloud_host }}.{{ domain }}
       - TRUSTED_PROXIES=172.18.0.0/16
+      - TZ={{ timezone }}
     networks:
       - nextcloud-external
       - nextcloud-internal

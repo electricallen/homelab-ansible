@@ -8,7 +8,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ={{ heimdall_timezone }}
+      - TZ={{ timezone }}
     volumes:
       - ./config:/config
     labels:
@@ -18,6 +18,9 @@ services:
       - traefik.http.routers.heimdall.entrypoints=websecure
       - traefik.http.routers.heimdall.tls.certresolver=letsencrypt
       - traefik.http.routers.heimdall.middlewares=heimdall
+{% if heimdall_whitelist == "enabled" and traefik_ip_whitelist != "" %}
+      - traefik.http.routers.heimdall.middlewares=whitelist
+{% endif %}
       - traefik.http.middlewares.heimdall.headers.contentSecurityPolicy=frame-ancestors 'self' {{ domain }} *.{{ domain }}
       - traefik.http.middlewares.heimdall.headers.stsSeconds=155520011
       - traefik.http.middlewares.heimdall.headers.stsIncludeSubdomains=true

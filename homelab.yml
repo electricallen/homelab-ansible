@@ -15,3 +15,4 @@
     include: "{{ item }}"
     with_fileglob:
       - "./tasks/post_install/*"
+    when: item | regex_replace('^.*post_install/(.*).yml$', '\\1') in services

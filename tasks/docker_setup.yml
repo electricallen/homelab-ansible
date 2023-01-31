@@ -33,23 +33,41 @@
       enabled: yes
     become: yes
 
-  - name: create project directories
+  - name: index directories
+    find:
+      paths: templates/
+      recurse: true
+      file_type: directory
+    register: directories
+    delegate_to: localhost
+
+  - name: index files
+    find:
+      paths: templates/
+      recurse: true
+      patterns: '*.j2'
+    register: files
+    delegate_to: localhost
+    
+  - name: create directories
     file:
-      path: ~/{{ item }}/
+      path: "{{ item | regex_replace('^templates', '~') }}"
       state: directory
       owner: "{{ username }}"
       group: docker
       mode: '0770'
-    loop: "{{ containers }}"
+    loop: "{{ directories.files | map(attribute='path') | list }}"
+    when: item | regex_replace('^templates\/([^\/]*)\/?.*$', '\\1') in containers
 
-  - name: create docker-compose files
+  - name: create files from templates
     template:
-      src: templates/{{ item }}-docker-compose.yml
-      dest: ~/{{ item }}/docker-compose.yml
+      src: "{{ item }}"
+      dest: "{{ item | regex_replace('^templates', '~') | regex_replace('.j2$', '') }}"
       owner: "{{ username }}"
       group: docker
       mode: '0770'
-    loop: "{{ containers }}"
+    loop: "{{ files.files | map(attribute='path') | list }}"
+    when: item | regex_replace('^templates\/([^\/]*)\/.*$', '\\1') in containers
 
   - name: start containers (may take a long time)
     docker_compose: 

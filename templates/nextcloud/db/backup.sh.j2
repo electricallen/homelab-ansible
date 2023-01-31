@@ -1,0 +1,4 @@
+#!/bin/bash
+docker exec --user www-data nextcloud php occ maintenance:mode --on
+docker exec nextcloud-db mysqldump --single-transaction -h localhost -u {{ mysql_usr }} -p{{ mysql_pw }} nextcloud > /home/{{ username }}/nextcloud/db/nextcloud-sqlbkp.bak
+docker exec --user www-data nextcloud php occ maintenance:mode --off

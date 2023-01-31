@@ -1,0 +1,36 @@
+version: "3.5"
+
+services:
+
+  bitwarden:
+    image: vaultwarden/server:latest
+    container_name: bitwarden
+    restart: always
+    volumes:
+      - ./bitwarden:/data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.bitwarden.tls=true
+      - traefik.http.routers.bitwarden.rule=Host(`{{ bitwarden_host}}.{{ domain }}`)
+      - traefik.http.routers.bitwarden.entrypoints=websecure
+      - traefik.http.routers.bitwarden.tls.certresolver=letsencrypt
+      - traefik.http.routers.bitwarden.middlewares=bitwarden
+{% if bitwarden_whitelist == "enabled" and traefik_ip_whitelist != "" %}
+      - traefik.http.routers.bitwarden.middlewares=whitelist
+{% endif %}
+      - traefik.http.middlewares.bitwarden.headers.contentSecurityPolicy=frame-ancestors 'self' {{ domain }} *.{{ domain }}
+      - traefik.http.middlewares.bitwarden.headers.stsSeconds=155520011
+      - traefik.http.middlewares.bitwarden.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.bitwarden.headers.stsPreload=true
+    environment:
+      ADMIN_TOKEN: {{ bitwarden_admin_token }}
+      WEBSOCKET_ENABLED: 'true'
+#      SIGNUPS_ALLOWED: 'false'
+      TZ: {{ timezone }}
+    networks:
+      - bitwarden-external
+
+networks:
+  bitwarden-external:
+    external: 
+      name: bitwarden-external

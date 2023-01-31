@@ -1,0 +1,7 @@
+  - name: remove kopia repo config if not configured
+    file:
+      path: "~/kopia/config/repository.config"
+      state: absent
+    #become: yes
+    when: kopia_bucket == ''
+    

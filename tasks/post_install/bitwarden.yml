@@ -1,0 +1,16 @@
+  - name: install sqlite3 (used in bitwarden backup script)
+    apt:
+      name: sqlite3
+      state: latest
+    become: yes
+    when: '"bitwarden" in services'
+  
+  - name: add bitwarden backup cronjob
+    cron:
+      name: "backup bitwarden db"
+      month: "{{ bitwarden_backup_month }}"
+      day: "{{ bitwarden_backup_day }}"
+      hour: "{{ bitwarden_backup_hour }}"
+      minute: "{{ bitwarden_backup_minute }}"
+      job: "/home/{{ username}}/bitwarden/backup.sh"
+    become: yes

@@ -1,3 +1,14 @@
+  - name: add nextcloud backup cronjob
+    cron:
+      name: "backup nextcloud db"
+      month: "{{ nextcloud_backup_month }}"
+      day: "{{ nextcloud_backup_day }}"
+      hour: "{{ nextcloud_backup_hour }}"
+      minute: "{{ nextcloud_backup_minute }}"
+      job: "/home/{{ username}}/nextcloud/backup.sh"
+    become: yes
+    when: '"nextcloud" in services'
+  
   - name: NEXTCLOUD - waiting for nextcloud setup (5 min max)...
     wait_for:
       path: ~/nextcloud/nextcloud/config/config.php

@@ -1,0 +1,6 @@
+#!/bin/bash
+docker stop bitwarden
+mv /home/{{ username }}/bitwarden/bitwarden/db.sqlite3-wal /home/{{ username }}/bitwarden/bitwarden/db.sqlite3-wal.old
+mv /home/{{ username }}/bitwarden/bitwarden/db.sqlite3 /home/{{ username }}/bitwarden/bitwarden/db.sqlite3.old
+mv /home/{{ username }}/bitwarden/bitwarden/db.sqlite3.bak  /home/{{ username }}/bitwarden/bitwarden/db.sqlite3
+docker start bitwarden

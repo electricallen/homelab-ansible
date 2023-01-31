@@ -1,0 +1,56 @@
+version: "3.5"
+
+services:
+  kopia:
+    image: kopia/kopia:latest
+    container_name: kopia
+    user: "0:0"
+    restart: "unless-stopped"
+    privileged: true
+    hostname: {{ kopia_host }}.{{ domain }}
+    cap_add:
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse:/dev/fuse:rwm
+    expose:
+      - '51515'
+    command:
+      - server
+      - start
+      - --insecure
+      - --disable-csrf-token-checks
+      - --address=0.0.0.0:51515
+      - --server-username={{ kopia_web_username }}@{{ kopia_host }}.{{ domain }}
+      - --server-password={{ kopia_web_password }}
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kopia.rule=Host(`{{ kopia_host }}.{{ domain }}`)
+      - traefik.http.routers.kopia.entrypoints=websecure
+      - traefik.http.routers.kopia.tls.certresolver=letsencrypt
+      - traefik.http.routers.kopia.middlewares=kopia
+{% if kopia_whitelist == "enabled" and traefik_ip_whitelist != "" %}
+      - traefik.http.routers.kopia.middlewares=whitelist
+{% endif %}
+      - traefik.http.middlewares.kopia.headers.contentSecurityPolicy=frame-ancestors 'self' {{ domain }} *.{{ domain }}
+      - traefik.http.middlewares.kopia.headers.stsSeconds=155520011
+      - traefik.http.middlewares.kopia.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.kopia.headers.stsPreload=true
+    environment:
+      USER: {{ username }}
+      KOPIA_PASSWORD: {{ kopia_repo_password }}
+      TZ: {{ timezone }}
+    volumes:
+      - /mnt/kopia:/tmp:shared
+      - ./config:/app/config
+      - ./cache:/app/cache
+      - ./logs:/app/logs
+      - /:/data:ro
+    networks:
+      - kopia-external
+
+networks:
+  kopia-external:
+    external: 
+      name: kopia-external

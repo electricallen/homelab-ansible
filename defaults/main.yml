@@ -20,6 +20,10 @@ target_pw: password
 # Domain services will be avaliable on
 domain: example.xyz
 
+# Timezone for containers (used to sync logs with local clock)
+# see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for formatting
+timezone: America/Denver
+
 ############################### SERVICES SELECTION ############################
 
 # Disable a service by commenting it out from this list
@@ -27,6 +31,7 @@ services:
 - nextcloud
 - bitwarden
 - heimdall
+- kopia
 
 ############################### TRAEFIK SETTINGS ##############################
 
@@ -51,6 +56,14 @@ traefik_user: admin
 # Password is plaintext (ansible will hash)
 traefik_pw: admin
 
+# IP Whitelist - Only allow connection from these source IPs/ranges 
+# Can be used to only allow connections from LAN or specific host
+# Must be enabled on each service via the service_whitelist setting
+# Leave blank (double quotes) to disable
+#traefik_ip_whitelist: 192.168.1.0/24
+#traefik_ip_whitelist: 127.0.0.0/24, 192.168.1.123
+traefik_ip_whitelist: ""
+
 ######################### NEXTCLOUD/DATABASE SETTINGS #########################
 
 # Hostname for NextCloud Web URL
@@ -64,6 +77,18 @@ mysql_rootpw: admin
 mysql_usr: nextcloud
 mysql_pw: admin
 
+# Enable IP whitelisting
+#nextcloud_whitelist: enabled
+nextcloud_whitelist: disabled
+
+# Automatic Backup cron settings
+# Used to build a crontab-like string
+# Defaults to every day at 3:30am
+nextcloud_backup_month: "*"
+nextcloud_backup_day: "*"
+nextcloud_backup_hour: "3"
+nextcloud_backup_minute: "30"
+
 ######################### BITWARDEN SETTINGS ##################################
 
 # Hostname for Bitwarden Web URL
@@ -75,6 +100,18 @@ bitwarden_host: vault
 # Some characters are know to cause issues - "openssl rand -base64 48" reccommended
 bitwarden_admin_token: long_complicated_string_here
 
+# Enable IP whitelisting
+#bitwarden_whitelist: enabled
+bitwarden_whitelist: disabled
+
+# Automatic Backup cron settings
+# Used to build a crontab-like string
+# Defaults to every day at 3am
+bitwarden_backup_month: "*"
+bitwarden_backup_day: "*"
+bitwarden_backup_hour: "3"
+bitwarden_backup_minute: "0"
+
 ######################### HEIMDALL SETTINGS ##################################
 
 # Hostname for Heimdall Web URL
@@ -82,9 +119,42 @@ bitwarden_admin_token: long_complicated_string_here
 #     https://{{ heimdall_host }}.{{ domain }}
 heimdall_host: www
 
-# Timezone for Heimdall container
-# see https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for formatting
-heimdall_timezone: America/Denver
+# Enable IP whitelisting
+#heimdall_whitelist: enabled
+heimdall_whitelist: disabled
+
+########################## KOPIA SETTINGS ####################################
+
+# Hostname for Kopia Web URL
+# Kopia will be available in your browser at:
+#     https://{{ kopia_host }}.{{ domain }}
+kopia_host: backup
+
+# Username and password to log into web UI
+#   Note: These are NOT the repository encryption or storage credentials
+kopia_web_username: user
+kopia_web_password: somePassword
+
+# Password for repository - DO NOT LOSE
+#   Snapshots will be saved at {{ user }}@{{ kopia_host }}.{{ domain }}
+kopia_repo_password: dontLoseMe
+
+# Enable IP whitelisting
+#kopia_whitelist: enabled
+kopia_whitelist: disabled
+
+# Backblaze B2 settings
+# If you want to configure manually or use another storage provider
+#   Set kopia_B2_bucket empty (double quotes)
+#   NOTE: SET EMPTY If this bucket does not have a Kopia repo already configured
+#     Kopia repo needs to be set up before this config works
+kopia_bucket: ""
+#kopia_bucket: myBucketName
+
+# Create an API key for B2 and add the ID/Key here
+kopia_key_id: longhexstring
+kopia_key: longhexstring
+
 
 ######################### INTERNAL SETTINGS ##################################
 # !!!!!!!!! Don't change these variables !!!!!!!!!
