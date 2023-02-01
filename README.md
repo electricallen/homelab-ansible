@@ -1,11 +1,11 @@
 # NextCloud, Bitwarden, Heimdall, and Traefik Containers in Ansible
 
-An ansible playbook to install and configure a homelab using docker conatiners on an Ubuntu host
+Automated deployment of common self-hosted services using Ansible
 
 ## Services included
 
 * [Nextcloud](https://nextcloud.com) - Cloud storage and more
-* [Bitwarden_rs](https://github.com/dani-garcia/bitwarden_rs) - Password manager. A community made server implementation of [Bitwarden](https://bitwarden.com)
+* [Vaultwarden](https://github.com/dani-garcia/vaultwarden) - Password manager. A community made server implementation of [Bitwarden](https://bitwarden.com)
 * [Heimdall](https://github.com/linuxserver/Heimdall) - Application dashboard
 * [Traefik](https://traefik.io) - Reverse proxy, HTTPS certificate management, and more
 * [Kopia](https://github.com/kopia/kopia) - Automatic backup to cloud or local storage
@@ -15,8 +15,15 @@ An ansible playbook to install and configure a homelab using docker conatiners o
 * A server capable of running Ubuntu either as a VM or directly (~16 GB storage, ~1 GB RAM) - the Ansible target node
 * A domain name
 * A router capable of port forwarding, DDNS, and split DNS override (pfSense is a fantastic option)
-* A computer to be used as an Ansible Control node. This must be linux or WSL on a Windows machine
-* Optional - A backblaze b2 bucket for automatic backups. Many storage locations can be configured manually through kopia, but only b2 is automated here
+* A computer to be used as an Ansible Control node. This must be Linux or WSL on a Windows machine
+
+Or
+
+* A VPS with similar capabilities
+
+And, optionally:
+
+* A backblaze b2 bucket for automatic backups. Many storage locations can be configured manually through kopia, but only b2 is automated here
 
 ## How to Use
 
@@ -62,6 +69,7 @@ An ansible playbook to install and configure a homelab using docker conatiners o
 9. It may take a few minutes for traefik to install HTTPS certificates from Let's Encrypt
 
     * You can check the status of certificates by inspecting `~/traefik/letsencrypt/acme.json` on the docker host
+    
 10. Configure Nextcloud
 
     * Check the overview and security screens in settings when logged in as an admin
@@ -70,22 +78,13 @@ An ansible playbook to install and configure a homelab using docker conatiners o
 ## Configure Backups
 
 * Log into the Kopia web UI to configure storage, snapshots, and policies
-* Shell scipts exist to backup databases prior to running a snapshot:
-  * `~/bitwarden/bitwarden/backup.sh` will backup vaultwarden's SQLite DB
-  * `~/nextcloud/db/backup.sh` will backup nextcloud's MySQL DB
-* The docker host `/` directory is bind mounted to the Kopia container at `/data`. For example, to backup vaultwarden:
-  * Use `/data/home/<yourUsername>/bitwarden` as the directory
+* Bitwarden and Nextcloud databases are automatically backed up using shell scripts and cronjobs
 * To access a directory from the Kopia UI, prepend `/data`. For example, to snapshot the bitwarden directory, use `/data/home/{{ username }}/bitwarden`
-
-### Nextcloud
-
-* The nextcloud directory contain everything needed to properly restore nextcloud from backups
-* A backup script, `~/nextcloud/db/backup.sh` runs periodically to backup the contents of the database
-* A restore script is available at `~/nextcloud/db/restore.sh`
 
 ## Restore backups
 
-Backup restoration steps here are broken up into two type - standard and disaster recovery
+Backup restoration steps here are broken up into two types - standard and disaster recovery.
+Shell scripts in the Bitwarden and Nextcloud directories exist to restore database backups. 
 
 ### Standard Backups
 
@@ -97,10 +96,10 @@ These steps outline how to recover data on a running and configured host
     * Change `/:/data:ro` to `/:/data:rw` in the `volumes` section
     * `docker-compose up -d`
 1. Restore snapshot(s) through Kopia web UI, remembering to prepend `/data/home/<yourUsername>` to paths
-1. To restore bitwarden run `sudo ~/bitwarden/restore.sh`
+1. To restore the Bitwarden database, run `sudo ~/bitwarden/restore.sh`
 1. If Nextcloud needs to be restored:
 
-    * Run `~/nextcloud/db/restore.sh` - it may take a bit for the DB container to accept connections
+    * Run `~/nextcloud/db/restore.sh`
     * Fingerprint to fix issues with sync clients:
 
     ```sh
@@ -110,6 +109,7 @@ These steps outline how to recover data on a running and configured host
     ```
 
 1. If you get an `Internal Server Error` on the Nextcloud webpage, see the [Nextcloud Troubleshooting](#nextcloud-troubleshooting) section
+1. Restore Kopia to read-only access
 
 ### Disaster Recover
 
@@ -123,7 +123,7 @@ These steps outline how to restore backups to a new host
     * `docker-compose up -d`
 1. Restore backups through Kopia web UI, remembering to prepend `/data/home/<yourUsername>` to paths
 1. Run `homelab.yml` again
-1. To restore bitwarden run `sudo ~/bitwarden/restore.sh`
+1. To restore the Bitwarden database, run `sudo ~/bitwarden/restore.sh`
 1. If Nextcloud needs to be restored:
 
     * Run `~/nextcloud/db/restore.sh` - it may take a bit for the DB container to accept connections
@@ -168,7 +168,7 @@ Nextcloud backups can fail to restore for a number of reasons:
 
 ### How can I add a new service to this playbook?
 
-These are the steps I reccomend using to add services:
+These are the steps I recommend using to add services:
 
 1. Build and test your `docker-compose.yml` file, verifying it works as expected
 1. Add the service to the `services` list in `default/main.yml`
@@ -184,4 +184,4 @@ This is all that is needed for most applications. However, if you have any tasks
 ### Why ansible?
 
 Ansible enables rapid redeployment of services in the event of hardware or software failure.
-Since Ansible is state-based, it can also be used to fix configs that were inadvertantly edited. It's also fun to write!
+Since Ansible is state-based, it can also be used to fix configs that were inadvertently edited. It's also fun to write!
