@@ -69,7 +69,7 @@ And, optionally:
 9. It may take a few minutes for traefik to install HTTPS certificates from Let's Encrypt
 
     * You can check the status of certificates by inspecting `~/traefik/letsencrypt/acme.json` on the docker host
-    
+
 10. Configure Nextcloud
 
     * Check the overview and security screens in settings when logged in as an admin
@@ -84,7 +84,7 @@ And, optionally:
 ## Restore backups
 
 Backup restoration steps here are broken up into two types - standard and disaster recovery.
-Shell scripts in the Bitwarden and Nextcloud directories exist to restore database backups. 
+Shell scripts in the Bitwarden and Nextcloud directories exist to restore database backups.
 
 ### Standard Backups
 
